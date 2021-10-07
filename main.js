@@ -43,6 +43,10 @@ function validator(input) {
   return true;
 }
 
+function firstLetterCaps(str) {
+  return str[0].toUpperCase() + str.substring(1);
+}
+
 function searchByItems(arr, item, count) {
   let total = 0;
   const itemCount = count;
@@ -52,7 +56,7 @@ function searchByItems(arr, item, count) {
   for (let element of filter) {
     total += element[itemCount];
   }
-  console.log(item[0].toUpperCase() + item.substring(1) + "s - " + total);
+  console.log(firstLetterCaps(item) + "s - " + total);
 }
 
 function compareByItem(a, b) {
@@ -71,8 +75,8 @@ function compareBycost(a, b) {
   let aKey = a.pricePerKilo || a.pricePerItem;
   let bKey = b.pricePerKilo || b.pricePerItem;
 
-  aKey = Number(priceNormalization(aKey));
-  bKey = Number(priceNormalization(bKey));
+  aKey = Number(priceNormalization(aKey)) * (a.weight || a.quantity);
+  bKey = Number(priceNormalization(bKey)) * (b.weight || b.quantity);
 
   if (aKey > bKey) return 1;
   if (aKey == bKey) return 0;
@@ -104,11 +108,24 @@ function costOfAllGoods(input) {
   console.log(`The cheapest orange type is: ${orangeMin[0].type}`);
 
   console.log("\nthe cost of the goods by item name:");
+  let costArray = [];
   input.forEach((element) => {
-    console.log(
-      element.item + " - " + (element.pricePerKilo || element.pricePerItem)
+    costArray[element.item] = input.filter(
+      (item) => item.item === element.item
     );
   });
+
+  for (let key in costArray) {
+    let cost = 0;
+    costArray[key].forEach((element) => {
+      let price = priceNormalization(
+        element.pricePerKilo || element.pricePerItem
+      );
+      let counter = element.weight || element.quantity;
+      cost += counter * price;
+    });
+    console.log(firstLetterCaps(key) + "s - $" + +cost.toFixed(2));
+  }
 
   console.log("\nthe cost that should be paid for all these goods:");
   let totalPrice = 0;
